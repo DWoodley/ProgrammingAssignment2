@@ -1,10 +1,24 @@
+## cachematrix.R  DWoodley 10/23/2016
+## Two functions: 1. makeCacheMatrix(x = matrix()) Create matrix cache object.
+##                2. cacheSolve(matrixObj) Calculate inverse of matrix.
+
+##Example use:
+##    n <- 10000
+##    a <- matrix(rnorm(n*n),n,n)
+##    m <- makeCacheMatrix(a)
+##    cacheSolve(m) 
+##    ==> 'Calculating inverted matrix.'
+##    aa <- m$getInverse()
+##    aa
+##    ==> print out of first row of inverted matrix
+##    cacheSolve(m)
+##    ==> 'Returning cached inverted matrix.'
 
 
 ## makeCacheMatrix will create a "matrix Object" that contains a list
 ## of "get" and "set" functions that set or return the matrix to be inverted 
 ## and the function ONLY sets up the "matrix Object" but does not perform a 
 ## role in the inversion calculation
-
 makeCacheMatrix <- function(x = matrix()) {
     inv <- NULL
     
