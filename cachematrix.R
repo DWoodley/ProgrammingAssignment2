@@ -1,59 +1,82 @@
-## Put comments here that give an overall description of what your
-## functions do
+
 
 ## makeCacheMatrix will create a "matrix Object" that contains a list
 ## of "get" and "set" functions that set or return the matrix to be inverted 
 ## and the function ONLY sets up the "matrix Object" but does not perform a 
-## roll in the inversion calculation
+## role in the inversion calculation
 
 makeCacheMatrix <- function(x = matrix()) {
     inv <- NULL
     
+    set <- function (y) {
     # y is an invertible matrix as input
     # x is a free variable that is assigned using set function
-    set <- function (y) {
-        # Tests: dimensions of input matrix (y) are same as dimensions of 
-        # cached matrix (X); if so it then checks that all entries in y are
-        # equal to x. If either condition is false the matrix y is not the same
-        # as the martix x 
-        # if not, 
-        if(sum(dim(x) != dim(y)) > 0 || !all.equal(x,y)){
-            x <<- y
-            inv <<- NULL
-        }
+    # inv is a free variable that will later store the inverted matrix
+        x <<- y
+        inv <<- NULL
     }
     
-    get <- function () x
-    setInverse <- function (Inverse) inv <<- Inverse
-    getInverse <- function () inv
+    # Return original matrix
+    get <- function () {
+        x
+    }
     
+    ## Function setInverse(Inverse) assigns the calculated inverse of matrix
+    ## of the matrix object.
+    setInverse <- function (Inverse) {
+        inv <<- Inverse 
+    }
+    
+    ## Function getInverse() returns precalculated inverse of matrix object.
+    ## Returns NULL if inverse matrix has not been assigned
+    getInverse <- function () {
+        inv
+    }
+    
+    ## return list of functions containing data for matrix.
     list(set = set,get = get, setInverse = setInverse,getInverse = getInverse)
 }
 
-
+## Function cacheSolve(matrixObj, ...) will, if necesary calculate, assign 
+## then and return an inverse matrix of the matrix object 'matrixObj'.
 ## The parameter 'matrixObj' is a matrix object created by makeCacheMatrix,
-## that may or (may not) have had its inverse previously calculated.
+## that may or (may not) have previously had its inverse matrix calculated.
+## The function will first check for the existance of an inverse matrix and
+## calculate a value if necessary.
 cacheSolve <- function(matrixObj, ...) {
-    ## Return a matrix that is the inverse of 'x'
-        
-    # If x already has a calculated inverse, assign it to inv
+
+    ## Get value of inverse matrix. May be NULL
     inv <- matrixObj$getInverse()
     
-    ## Check to see if 
-    ## Calculate an inverse for the matrix object if one does not exist
+    ## Check to see if inverse matrix has been calculated for this matrix;
+    ## if so do not calculate the inverse and return the existing inverse 
+    ## matrix.
     if(!is.null(inv)) {
-        message("Getting cached inverted matrix.")
-        return(inv)
+        message("Returning cached inverted matrix.")
+    }
+    else {
+        ## This matrix does not have an inverse matrix assigned
+        ## Calculate an inverse for the matrix object.
+        message("Calculating inverted matrix.")
+        
+        ## Retrieve original matrix
+        data <- matrixObj$get()
+    
+        inv <- solve(data)
+    
+        ## Assign newly calculated inverse matrix value
+        matrixObj$setInverse(inv)
     }
     
-    message("Calculating inverted matrix.")
-    data <- matrixObj$get()
-    
-    inv <- solve(data)
-    
-    matrixObj$setInverse(inv)
-    
-    lastMatrix <- list()
-    
+    ## Return a matrix that is the inverse of 'x'
     invisible(inv)
+}
+
+## Utility function to compare two matrices.
+matMatch <- function(x,y)
+{
+    a <- x$get()
+    b <- y$get()
+    
+    returm (sum(dim(a) != dim(b)) == 0 && all.equal(a,b)) 
 }
